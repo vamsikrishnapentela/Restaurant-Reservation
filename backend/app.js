@@ -9,7 +9,7 @@ const app = express();
 dotenv.config({ path: "./config.env" });
 
 app.use(cors({
-    origin: "http://localhost:5173", // React dev server
+    origin: ["http://localhost:5173","https://restaurant-reservation-two-gray.vercel.app"], // React dev server
     methods: ["POST"],
     credentials: true,
   })
