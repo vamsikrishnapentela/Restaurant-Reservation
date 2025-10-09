@@ -1,19 +1,22 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import reservationRoute from "./routes/reservationRoute.js";
+
+dotenv.config();
 
 const app = express();
 
-// Allow your frontend domain
+// ✅ FIX: Enable CORS for your frontend domain
 app.use(cors({
-  origin: "https://restaurant-reservation-two-gray.vercel.app",
+  origin: ["https://restaurant-reservation-two-gray.vercel.app"], // your frontend deployed URL
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  credentials: true,
 }));
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Server is running...");
-});
+// ✅ Routes
+app.use("/reservation", reservationRoute);
 
 export default app;
