@@ -1,23 +1,32 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
-import { errorMiddleware } from "./middlewares/error.js";
-import reservationRoute from "./routes/reservationRoute.js";
 import { dbConnection } from "./database/dbConnection.js";
+import reservationRoute from "./routes/reservationRoute.js";
+import { errorMiddleware } from "./middlewares/error.js";
 
-const app = express();
 dotenv.config({ path: "./config.env" });
+const app = express();
 
-// ✅ Fix: Include OPTIONS and make sure the exact origin matches
-app.use(cors({
-  origin: ["https://restaurant-reservation-two-gray.vercel.app"], 
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-}));
+// ✅ Manual CORS headers
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    "https://restaurant-reservation-two-gray.vercel.app",
+    "http://localhost:5173"
+  ];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-// ✅ Handle preflight requests globally
-app.options("*", cors());
+  // ✅ Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,10 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/reservation", reservationRoute);
 
 app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "HELLO WORLD AGAIN",
-  });
+  res.status(200).json({ success: true, message: "HELLO WORLD AGAIN" });
 });
 
 dbConnection();
